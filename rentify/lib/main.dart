@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:rentify/firebase_options.dart';
+import 'package:rentify/presentation/pages/login_screen.dart';
 import 'package:rentify/presentation/pages/onboarding_page.dart';
 
 // time : 1.42.51
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: OnboardingPage(),
+      home: LoginScreen(),
     );
   }
 }
