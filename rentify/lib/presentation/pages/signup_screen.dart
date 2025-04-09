@@ -1,31 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rentify/auth_service.dart';
+import 'package:rentify/presentation/pages/kyc_details_screen.dart';
 import 'package:rentify/presentation/pages/login_screen.dart';
 import 'package:rentify/presentation/pages/onboarding_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class UserModel {
-  final String uid;
-  final String email;
-  final String fullName;
-  final String phoneNumber;
-
-  UserModel({
-    required this.uid,
-    required this.email,
-    required this.fullName,
-    required this.phoneNumber,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'uid': uid,
-      'email': email,
-      'fullName': fullName,
-      'phoneNumber': phoneNumber,
-    };
-  }
-}
+import 'package:rentify/data/models/user_model.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -48,19 +27,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
     var user = await _authService.signUp(email, password);
 
     if (user != null) {
-      // Store user data in Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
-        UserModel(
-          uid: user.uid,
-          email: email,
-          fullName: fullName,
-          phoneNumber: phoneNumber,
-        ).toMap(),
+      // Create the basic user model
+      UserModel basicUserInfo = UserModel(
+        uid: user.uid,
+        email: email,
+        fullName: fullName,
+        phoneNumber: phoneNumber,
       );
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OnboardingPage()));
+      // Store basic user data in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+            basicUserInfo.toMap(),
+          );
+
+      // Navigate to KYC details screen instead of onboarding
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  KYCDetailsScreen(basicUserInfo: basicUserInfo)));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Signup Failed")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Signup Failed")));
     }
   }
 
@@ -81,15 +69,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           // Gradient Overlay
           Container(
             decoration: BoxDecoration(
-              // gradient: LinearGradient(
-              //   begin: Alignment.topLeft,
-              //   end: Alignment.bottomRight,
-              //   colors: [
-              //     Colors.blue.withOpacity(0.7),
-              //     Colors.purple.withOpacity(0.7),
-              //   ],
-              // ),
-            ),
+                // gradient: LinearGradient(
+                //   begin: Alignment.topLeft,
+                //   end: Alignment.bottomRight,
+                //   colors: [
+                //     Colors.blue.withOpacity(0.7),
+                //     Colors.purple.withOpacity(0.7),
+                //   ],
+                // ),
+                ),
           ),
           // Sign Up Form
           Padding(
@@ -164,7 +152,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen())),
                   child: Text("Already have an account? Log In"),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
